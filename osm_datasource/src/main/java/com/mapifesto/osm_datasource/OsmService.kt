@@ -13,9 +13,9 @@ interface OsmService {
 
     suspend fun queryChangeset(open: Boolean, displayName: String): ChangesetsDto?
 
-    suspend fun createChangeset(): String
+    suspend fun createChangeset(token: String): String
 
-    suspend fun closeChangeset(id: String)
+    suspend fun closeChangeset(id: String, token: String)
 
     suspend fun getNode(): NodeDto?
 

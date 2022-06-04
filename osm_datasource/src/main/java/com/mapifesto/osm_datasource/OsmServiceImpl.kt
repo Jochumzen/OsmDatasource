@@ -23,7 +23,7 @@ class OsmServiceImpl(
         }
     }
 
-    override suspend fun createChangeset(): String {
+    override suspend fun createChangeset(token: String): String {
         return httpClient.put {
             url("$CHANGESET/create")
             body = """<osm>
@@ -32,14 +32,14 @@ class OsmServiceImpl(
                         <tag k="comment" v="Testing"/>
                     </changeset>
                 </osm>"""
-            header(key = "Authorization", value = "Bearer aCq9kW2SXeHJhnghioCDcskL1k49GjsLRo3pmCWw71U")
+            header(key = "Authorization", value = "Bearer $token")
         }
     }
 
-    override suspend fun closeChangeset(id: String) {
+    override suspend fun closeChangeset(id: String, token: String) {
         return httpClient.put {
             url("$CHANGESET/$id/close")
-            header(key = "Authorization", value = "Bearer aCq9kW2SXeHJhnghioCDcskL1k49GjsLRo3pmCWw71U")
+            header(key = "Authorization", value = "Bearer $token")
         }
     }
 
@@ -60,16 +60,3 @@ class OsmServiceImpl(
     }
 }
 
-/*
-class XxxServiceImpl(
-    private val httpClient: HttpClient,
-): XxxService {
-
-    override suspend fun addMom(id: Int, age: Int): String {
-        return httpClient.put {
-            url(AGE)
-            body = "<MyMom><Id=$id/><age=$age/></myMom>"
-            header(key = "Authorization", value = "Bearer abc")
-        }
-    }
-}*/
