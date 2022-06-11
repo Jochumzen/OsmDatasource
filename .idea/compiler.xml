@@ -2,6 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.7">
+      <module name="android_core.OsmDatasource.domain" target="11" />
+      <module name="MapiGanja.OsmDatasource.android_core" target="11" />
+      <module name="OsmDatasource.android_core" target="11" />
       <module name="OsmDatasource.app" target="11" />
       <module name="OsmDatasource.buildSrc" target="11" />
       <module name="OsmDatasource.buildSrc.main" target="11" />

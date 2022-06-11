@@ -1,7 +1,9 @@
 package com.mapifesto.osm_datasource.changeset
 
+import com.mapifesto.domain.OpenChangesetsData
+import com.mapifesto.osm_datasource.Mapper.createOpenChangesetsData
 import com.mapifesto.osm_datasource.OsmService
-import com.mapifesto.overpass_datasource.OsmDataState
+import com.mapifesto.osm_datasource.OsmDataState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -10,7 +12,7 @@ class GetChangesetsData(
 ) {
     fun execute(
         displayName: String,
-    ): Flow<OsmDataState<ChangesetsData>> = flow {
+    ): Flow<OsmDataState<OpenChangesetsData>> = flow {
 
         var errorMessage: String? = null
 
@@ -30,18 +32,10 @@ class GetChangesetsData(
             return@flow
         }
 
-        val iDOfOpenChangeSet = if (changesetsDto.changesets.isNotEmpty())
-            changesetsDto.changesets[0].id
-        else 0
+        val openChangesetsData = createOpenChangesetsData(changesetsDto)
 
         emit(
-            OsmDataState.Data(
-                ChangesetsData(
-                    numberOfOpenChangesets = changesetsDto.changesets.size,
-                    iDOfOpenChangeSet = iDOfOpenChangeSet
-                )
-            )
+            OsmDataState.Data( openChangesetsData )
         )
-
     }
 }

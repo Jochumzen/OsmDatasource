@@ -3,7 +3,7 @@ package com.mapifesto.osm_datasource.user
 import com.mapifesto.domain.UserDetails
 import com.mapifesto.osm_datasource.Mapper
 import com.mapifesto.osm_datasource.OsmService
-import com.mapifesto.overpass_datasource.OsmDataState
+import com.mapifesto.osm_datasource.OsmDataState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

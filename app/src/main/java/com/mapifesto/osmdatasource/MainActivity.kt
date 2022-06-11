@@ -1,31 +1,29 @@
 package com.mapifesto.osmdatasource
 
 import android.os.Bundle
-import android.service.autofill.UserData
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberImagePainter
-import com.mapifesto.domain.UserDetails
-import com.mapifesto.osm_datasource.changeset.ChangesetsDto
-import com.mapifesto.osm_datasource.OsmInteractors
+import com.mapifesto.domain.*
+import com.mapifesto.domain.OsmWay
 import com.mapifesto.osm_datasource.OsmIntermediary
-import com.mapifesto.osm_datasource.changeset.ChangesetsData
 import com.mapifesto.osmdatasource.ui.theme.OsmDatasourceTheme
-import com.mapifesto.overpass_datasource.OsmDataState
+import com.mapifesto.osm_datasource.OsmDataState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,12 +46,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Compose(osmIntermediary: OsmIntermediary) {
 
+    val token = "aCq9kW2SXeHJhnghioCDcskL1k49GjsLRo3pmCWw71U"
     var showWhat by remember {mutableStateOf("")}
     var errorMsg by remember {mutableStateOf("")}
-    var changesetsData by remember { mutableStateOf<ChangesetsData?>(null)}
+    var outlinedText by remember {mutableStateOf("")}
+    var changesetsData by remember { mutableStateOf<OpenChangesetsData?>(null)}
+    var osmNode by remember { mutableStateOf<OsmNode?>(null)}
+    var osmWay by remember { mutableStateOf<OsmWay?>(null)}
+    var osmRelation by remember { mutableStateOf<OsmRelation?>(null)}
     var userData by remember { mutableStateOf<UserDetails?>(null)}
-    var createdChangesetId by remember { mutableStateOf("")}
-    //var openChangesetId by remember { mutableStateOf(0L)}
+    var createdChangesetId by remember { mutableStateOf(0L)}
+    var newId by remember { mutableStateOf("")}
     var page by remember { mutableStateOf("start")}
 
     Box(
@@ -78,9 +81,31 @@ fun Compose(osmIntermediary: OsmIntermediary) {
                     ) {
                         Text("User details")
                     }
+                    Button(
+                        onClick = {
+                            page = "nodes"
+                        }
+                    ) {
+                        Text("Nodes")
+                    }
+                    Button(
+                        onClick = {
+                            page = "ways"
+                        }
+                    ) {
+                        Text("Ways")
+                    }
+                    Button(
+                        onClick = {
+                            page = "relations"
+                        }
+                    ) {
+                        Text("Relations")
+                    }
                 }
                 "changesets" -> {
                     Text("OSM Data source: Changesets")
+
                     Button(
                         onClick = {
                             page = "start"
@@ -88,28 +113,72 @@ fun Compose(osmIntermediary: OsmIntermediary) {
                     ) {
                         Text("Start")
                     }
+
                     Button(
                         onClick = {
                             showWhat = ""
                             errorMsg = ""
-                            val getChangesets = OsmInteractors.build().getChangesetsData
-                            getChangesets.execute(displayName = "Jochumzen").onEach { dataState ->
-
+                            osmIntermediary.getOpenChangeSetsData(displayName = "Jochumzen") { dataState ->
                                 when(dataState) {
                                     is OsmDataState.Error -> { errorMsg = dataState.error}
                                     is OsmDataState.Data -> {
-                                        showWhat = "numberOfChangesets"
+                                        showWhat = "openChangeSets"
                                         changesetsData = dataState.data
                                     }
                                 }
-                            }.launchIn(CoroutineScope(Main))
+                            }
+
                         }
                     ) {
-                        Text("Get number of changesets")
+                        Text("Get open changesets")
                     }
+
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            osmIntermediary.createChangeSet(token = token) { dataState ->
+                                when(dataState) {
+                                    is OsmDataState.Error -> { errorMsg = dataState.error}
+                                    is OsmDataState.Data -> {
+                                        showWhat = "changeSetCreated"
+                                        createdChangesetId = dataState.data
+                                    }
+                                }
+                            }
+
+                        }
+                    ) {
+                        Text("Create changeset")
+                    }
+
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            val localChangeSetData = changesetsData
+                            if(localChangeSetData == null || localChangeSetData.iDOfOpenChangeSet == 0L) {
+                                errorMsg = "No open changeSet. Load first."
+                            } else {
+                                osmIntermediary.closeChangeSet(token = token, id = localChangeSetData.iDOfOpenChangeSet) { dataState ->
+                                    when(dataState) {
+                                        is OsmDataState.Error -> { errorMsg = dataState.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "changeSetClosed"
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        }
+                    ) {
+                        Text("Close open changeset")
+                    }
+
                     if(errorMsg != "") Text("Error: $errorMsg") else {
                         when(showWhat) {
-                            "numberOfChangesets", "numOCS" -> {
+                            "openChangeSets",  -> {
                                 val outStr = when(changesetsData!!.numberOfOpenChangesets) {
                                     0 -> "No open changesets"
                                     1 -> "One open changeset with id = ${changesetsData!!.iDOfOpenChangeSet}"
@@ -117,12 +186,14 @@ fun Compose(osmIntermediary: OsmIntermediary) {
                                 }
                                 Text(outStr)
                             }
-                            "newCS" -> Text("New changeset created. ID: $createdChangesetId")
+                            "changeSetCreated" -> Text("New changeset created. ID: $createdChangesetId")
+                            "changeSetClosed" -> Text("ChangeSet closed successfully")
                             else -> {}
                         }
                     }
                 }
                 "user_details" -> {
+                    Text("User-details")
                     Button(
                         onClick = {
                             page = "start"
@@ -160,7 +231,372 @@ fun Compose(osmIntermediary: OsmIntermediary) {
                         }
                     }
                 }
+                "nodes" -> {
+                    Text("Nodes")
+                    Button(
+                        onClick = {
+                            page = "start"
+                        }
+                    ) {
+                        Text("Start")
+                    }
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            osmIntermediary.getNodeById(id = 4326392324) {
+                                when(it) {
+                                    is OsmDataState.Error -> { errorMsg = it.error}
+                                    is OsmDataState.Data -> {
+                                        showWhat = "node"
+                                        osmNode = it.data
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Get node (Peters bar)")
+                    }
 
+                    Row() {
+                        OutlinedTextField(
+                            value = outlinedText,
+                            onValueChange = {
+                                outlinedText = it
+                            }
+                        )
+                        Button(
+                            onClick = {
+                                showWhat = ""
+                                errorMsg = ""
+                                osmIntermediary.getNodeById(id = outlinedText.toLong()) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "node"
+                                            osmNode = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Get")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            val localNode = osmNode
+                            if(localNode == null ) {
+                                errorMsg = "First load node"
+                            } else {
+                                val tags = localNode.tags.setTagValue(key = "note", value = "at ${Date()}")
+                                osmIntermediary.updateNode(
+                                    token = token,
+                                    elementId = localNode.id,
+                                    displayName = "Jochumzen",
+                                    version = localNode.version,
+                                    location = localNode.location,
+                                    tags = tags.asListOfOsmTags(),
+                                ) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "update_success"
+                                            newId = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Update node (Peters bar)")
+                    }
+
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            val localChangesetData = changesetsData
+                            if(localChangesetData == null || localChangesetData.iDOfOpenChangeSet == 0L) {
+                                errorMsg = "First get open changesets"
+                            } else {
+
+                                val tags = listOf(OsmTag(key = "amenity", value = "bar"), OsmTag(key = "name", value = "Just a bar"), OsmTag(key = "note", value = "at ${Date().toString()}"))
+
+                                osmIntermediary.createNode(
+                                    token = token,
+                                    displayName = "Jochumzen",
+                                    location = LatLon(lat = 53.0, lon = 36.1),
+                                    tags = tags,
+                                ) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "create_success"
+                                            newId = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Create node")
+                    }
+
+                    if(errorMsg != "") Text("Error: $errorMsg") else {
+                        when(showWhat) {
+                            "node" -> {
+                                Text("Node ID: ${osmNode!!.id}, Version: ${osmNode!!.version}")
+
+                                LazyColumn(
+                                    state = rememberLazyListState()
+                                ) {
+                                    items(osmNode!!.tags.tags.map { "${it.key}: ${it.value}"}) {
+                                        Text(it)
+                                    }
+
+                                }
+                            }
+                            "update_success" -> {
+                                Text("Node updated successfully. New version: $newId")
+                            }
+                            "create_success" -> {
+                                Text("Node created successfully. ID: $newId")
+                            }
+                        }
+                    }
+                }
+                "ways" -> {
+                    Text("Ways")
+                    Button(
+                        onClick = {
+                            page = "start"
+                        }
+                    ) {
+                        Text("Start")
+                    }
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            osmIntermediary.getWayById(id = 4305722945) {
+                                when(it) {
+                                    is OsmDataState.Error -> { errorMsg = it.error}
+                                    is OsmDataState.Data -> {
+                                        showWhat = "way"
+                                        osmWay = it.data
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Get way (Peters way)")
+                    }
+
+                    Row() {
+                        OutlinedTextField(
+                            value = outlinedText,
+                            onValueChange = {
+                                outlinedText = it
+                            }
+                        )
+                        Button(
+                            onClick = {
+                                showWhat = ""
+                                errorMsg = ""
+                                osmIntermediary.getWayById(id = outlinedText.toLong()) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "way"
+                                            osmWay = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Get")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            val localWay = osmWay
+                            if(localWay == null ) {
+                                errorMsg = "First load way"
+                            } else {
+                                val tags = localWay.tags.setTagValue(key = "note", value = "at ${Date()}")
+                                osmIntermediary.updateWay(
+                                    token = token,
+                                    elementId = localWay.id,
+                                    displayName = "Jochumzen",
+                                    version = localWay.version,
+                                    tags = tags.asListOfOsmTags(),
+                                    nodes = localWay.nodes,
+                                ) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "update_success"
+                                            newId = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Update way (Peters way)")
+                    }
+
+
+                    if(errorMsg != "") Text("Error: $errorMsg") else {
+                        when(showWhat) {
+                            "way" -> {
+                                Text("Way ID: ${osmWay!!.id}, Version: ${osmWay!!.version}")
+
+                                LazyColumn(
+                                    state = rememberLazyListState()
+                                ) {
+                                    items(osmWay!!.tags.tags.map { "${it.key}: ${it.value}"}) {
+                                        Text(it)
+                                    }
+
+                                }
+                                Text("Nodes:")
+                                LazyColumn(
+                                    state = rememberLazyListState()
+                                ) {
+                                    items(osmWay!!.nodes) {
+                                        Text(it.toString())
+                                    }
+
+                                }
+                            }
+                            "update_success" -> {
+                                Text("Way updated successfully. New version: $newId")
+                            }
+                        }
+                    }
+                }
+                "relations" -> {
+                    Text("Relations")
+                    Button(
+                        onClick = {
+                            page = "start"
+                        }
+                    ) {
+                        Text("Start")
+                    }
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            osmIntermediary.getRelationById(id = 4304892753) {
+                                when(it) {
+                                    is OsmDataState.Error -> { errorMsg = it.error}
+                                    is OsmDataState.Data -> {
+                                        showWhat = "relation"
+                                        osmRelation = it.data
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Get relation (Peters butchery)")
+                    }
+
+                    Row() {
+                        OutlinedTextField(
+                            value = outlinedText,
+                            onValueChange = {
+                                outlinedText = it
+                            }
+                        )
+                        Button(
+                            onClick = {
+                                showWhat = ""
+                                errorMsg = ""
+                                osmIntermediary.getRelationById(id = outlinedText.toLong()) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "way"
+                                            osmRelation = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Get")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            showWhat = ""
+                            errorMsg = ""
+                            val localRelation = osmRelation
+                            if(localRelation == null ) {
+                                errorMsg = "First load relation"
+                            } else {
+                                val tags = localRelation.tags.setTagValue(key = "note", value = "at ${Date()}")
+                                osmIntermediary.updateRelation(
+                                    token = token,
+                                    elementId = localRelation.id,
+                                    displayName = "Jochumzen",
+                                    version = localRelation.version,
+                                    tags = tags.asListOfOsmTags(),
+                                    members = localRelation.members,
+                                ) {
+                                    when(it) {
+                                        is OsmDataState.Error -> { errorMsg = it.error}
+                                        is OsmDataState.Data -> {
+                                            showWhat = "update_success"
+                                            newId = it.data
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Update relation (Peters way)")
+                    }
+
+
+                    if(errorMsg != "") Text("Error: $errorMsg") else {
+                        when(showWhat) {
+                            "relation" -> {
+                                Text("Relation ID: ${osmRelation!!.id}, Version: ${osmRelation!!.version}")
+
+                                LazyColumn(
+                                    state = rememberLazyListState()
+                                ) {
+                                    items(osmRelation!!.tags.tags.map { "${it.key}: ${it.value}"}) {
+                                        Text(it)
+                                    }
+
+                                }
+                                Text("Members:")
+                                LazyColumn(
+                                    state = rememberLazyListState()
+                                ) {
+                                    items(osmRelation!!.members) {
+                                        Text("${it.type}, ${it.ref}, ${it.role}")
+                                    }
+
+                                }
+                            }
+                            "update_success" -> {
+                                Text("Relation updated successfully. New version: $newId")
+                            }
+                        }
+                    }
+                }
             }
         }
 

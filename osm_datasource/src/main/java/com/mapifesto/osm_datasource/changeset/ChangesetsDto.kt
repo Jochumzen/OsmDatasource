@@ -42,8 +42,20 @@ data class ChangesetsDto(
         @SerialName("changes_count")
         val changesCount: Int,
 
+        @SerialName("min_lat")
+        val MinLat: Double? = null,
+
+        @SerialName("min_lon")
+        val MinLon: Double? = null,
+
+        @SerialName("max_lat")
+        val MaxLat: Double? = null,
+
+        @SerialName("max_lon")
+        val MaxLon: Double? = null,
+
         @SerialName("closed_at")
-        val closedAt: String,
+        val closedAt: String? = null,
 
         @SerialName("uid")
         val uid: Long,

@@ -1,4 +1,4 @@
-package com.mapifesto.overpass_datasource
+package com.mapifesto.osm_datasource
 
 sealed class OsmDataState<T> {
 

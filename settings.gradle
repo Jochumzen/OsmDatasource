@@ -17,3 +17,6 @@ include ':app'
 include ':osm_datasource'
 include ':domain'
 project(':domain').projectDir = new File('/../MapiGanja/domain')
+//include ':android_core'
+//project(':android_core').projectDir = new File('/../MapiGanja/android_core')
+
