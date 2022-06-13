@@ -23,7 +23,7 @@ class CreateChangeset(
         var errorMessage: String? = null
 
         val response: String? = try { // catch network exceptions
-            service.createChangeset(token = token, body = body)
+            service.createChangeset(token = token, bodyPut = body)
         } catch (e: Exception) {
             e.printStackTrace()
             errorMessage = e.message

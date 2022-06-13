@@ -32,7 +32,7 @@ class UpdateNode(
         val osmXmlString = osmXmlStringInit + tagsAsString + osmXmlStringEnd
 
         val response: String? = try {
-            service.updateNode(token = token, id = elementId, body = osmXmlString)
+            service.updateNode(token = token, id = elementId, bodyPut = osmXmlString)
         } catch (e: Exception) {
             e.printStackTrace()
             errorMessage = e.message?: "No error message provided"

@@ -30,7 +30,7 @@ class CreateNode (
         val osmXmlString = osmXmlStringInit + tagsAsString + osmXmlStringEnd
 
         val response: String? = try {
-            service.createNode(token = token, body = osmXmlString)
+            service.createNode(token = token, bodyPut = osmXmlString)
         } catch (e: Exception) {
             e.printStackTrace()
             errorMessage = e.message?: "No error message provided"

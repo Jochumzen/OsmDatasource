@@ -361,3 +361,103 @@ class OsmIntermediaryImpl(): OsmIntermediary {
         }.launchIn(CoroutineScope(Dispatchers.Main))
     }*/
 }
+
+class OsmIntermediaryMockup(): OsmIntermediary {
+    override fun getUserDetails(token: String, callback: (OsmDataState<UserDetails>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getOpenChangeSetsData(
+        displayName: String,
+        callback: (OsmDataState<OpenChangesetsData>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createChangeSet(token: String, callback: (OsmDataState<Long>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun closeChangeSet(token: String, id: Long, callback: (OsmDataState<String>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getNodeById(id: Long, callback: (OsmDataState<OsmNode>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateNode(
+        token: String,
+        elementId: Long,
+        displayName: String,
+        version: Int,
+        location: LatLon,
+        tags: List<OsmTag>,
+        callback: (OsmDataState<String>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createNode(
+        token: String,
+        displayName: String,
+        location: LatLon,
+        tags: List<OsmTag>,
+        callback: (OsmDataState<String>) -> Unit
+    ) {
+        callback(OsmDataState.Data("12345"))
+    }
+
+    override fun getWayById(id: Long, callback: (OsmDataState<OsmWay>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateWay(
+        token: String,
+        elementId: Long,
+        displayName: String,
+        version: Int,
+        tags: List<OsmTag>,
+        nodes: List<Long>,
+        callback: (OsmDataState<String>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createWay(
+        token: String,
+        displayName: String,
+        tags: List<OsmTag>,
+        nodes: List<Long>,
+        callback: (OsmDataState<String>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getRelationById(id: Long, callback: (OsmDataState<OsmRelation>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateRelation(
+        token: String,
+        elementId: Long,
+        displayName: String,
+        version: Int,
+        tags: List<OsmTag>,
+        members: List<OsmRelationMember>,
+        callback: (OsmDataState<String>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createRelation(
+        token: String,
+        displayName: String,
+        tags: List<OsmTag>,
+        members: List<OsmRelationMember>,
+        callback: (OsmDataState<String>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+}

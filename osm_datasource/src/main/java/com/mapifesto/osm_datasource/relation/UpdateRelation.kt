@@ -32,7 +32,7 @@ class UpdateRelation(
         val osmXmlString = osmXmlStringInit + tagsAsString + membersAsString + osmXmlStringEnd
 
         val response: String? = try {
-            service.updateRelation(token = token, id = elementId, body = osmXmlString)
+            service.updateRelation(token = token, id = elementId, bodyPut = osmXmlString)
         } catch (e: Exception) {
             e.printStackTrace()
             errorMessage = e.message?: "No error message provided"
