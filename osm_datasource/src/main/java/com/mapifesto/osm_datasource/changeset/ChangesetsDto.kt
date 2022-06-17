@@ -74,6 +74,9 @@ data class ChangesetsDto(
             @SerialName("comment")
             val comment: String,
 
+            @SerialName("source")
+            val source: String? = null,
+
             @SerialName("created_by")
             val createdBy: String,
         )

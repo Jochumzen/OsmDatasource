@@ -38,9 +38,11 @@ class OsmServiceImpl(
 
     override suspend fun queryChangeset(open: Boolean, displayName: String): ChangesetsDto? {
         return if(displayName == "") null else {
-            val openString = if(open) "&open=true" else ""
             httpClient.get {
-                url("${QUERY_CHANGESETS}?display_name=$displayName$openString")
+                url(QUERY_CHANGESETS)
+                parameter(key ="display_name", value = displayName)
+                if(open)
+                    parameter(key ="open", value = "true")
                 header(key = "Accept", value = "application/json")
             }
         }
