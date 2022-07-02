@@ -35,6 +35,8 @@ interface OsmIntermediary {
     fun updateRelation(token: String, elementId: Long, displayName: String, version: Int, tags: List<OsmTag>, members: List<OsmRelationMember>, callback: (OsmDataState<String>) -> Unit)
 
     fun createRelation(token: String, displayName: String, tags: List<OsmTag>, members: List<OsmRelationMember>, callback: (OsmDataState<String>) -> Unit)
+
+    //fun getElementByIdAndType(id: Long, type: OsmElementType, callback: (OsmDataState<OsmRelation>) -> Unit)
 }
 
 class OsmIntermediaryImpl(): OsmIntermediary {
@@ -317,6 +319,30 @@ class OsmIntermediaryImpl(): OsmIntermediary {
 
         }
     }
+
+/*    override fun getElementByIdAndType(
+        id: Long,
+        type: OsmElementType,
+        callback: (OsmDataState<OsmElement>) -> Unit
+    ) {
+        when(type) {
+            OsmElementType.NODE -> {
+                getNodeById(id) {
+                    //Handle node
+                }
+            }
+            OsmElementType.WAY -> {
+                getWayById(id) {
+                    //Handle way
+                }
+            }
+            OsmElementType.RELATION -> {
+                getRelationById(id) {
+                    //Handle relation
+                }
+            }
+        }
+    }*/
 
     private fun getOrCreateChangeSet(token: String, displayName: String, callback: (String?) -> Unit) {
 

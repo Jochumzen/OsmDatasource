@@ -2,7 +2,7 @@ package com.mapifesto.osm_datasource
 
 object EndPoints {
 
-    private const val useOsmTest = true
+    private const val useOsmTest = false
 
     private const val OSM_URL_LIVE = "https://api.openstreetmap.org"
     private const val OSM_URL_TEST = "https://master.apis.dev.openstreetmap.org"
