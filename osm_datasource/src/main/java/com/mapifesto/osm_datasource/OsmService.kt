@@ -1,6 +1,7 @@
 package com.mapifesto.osm_datasource
 
 import com.mapifesto.domain.Bobo
+import com.mapifesto.domain.OsmBoboNote
 import com.mapifesto.osm_datasource.changeset.ChangesetsDto
 import com.mapifesto.osm_datasource.node.NodeDto
 import com.mapifesto.osm_datasource.relation.RelationDto
@@ -42,7 +43,7 @@ interface OsmService {
 
     suspend fun createRelation(token: String, bodyPut: String): String?
 
-    suspend fun createNote(token: String, bobo: Bobo): HttpResponse?
+    suspend fun createNote(token: String, bobo: OsmBoboNote): HttpResponse?
 
     companion object Factory {
         fun build(): OsmService {

@@ -37,7 +37,7 @@ interface OsmIntermediary {
 
     fun createRelation(token: String, displayName: String, tags: List<OsmTag>, members: List<OsmRelationMember>, callback: (OsmDataState<String>) -> Unit)
 
-    fun createNote(token: String, bobo: Bobo, callback: (OsmDataState<HttpResponse>) -> Unit)
+    fun createNote(token: String, bobo: OsmBoboNote, callback: (OsmDataState<HttpResponse>) -> Unit)
 
     //fun getElementByIdAndType(id: Long, type: OsmElementType, callback: (OsmDataState<OsmRelation>) -> Unit)
 }
@@ -323,7 +323,7 @@ class OsmIntermediaryImpl(): OsmIntermediary {
 
     override fun createNote(
         token: String,
-        bobo: Bobo,
+        bobo: OsmBoboNote,
         callback: (OsmDataState<HttpResponse>) -> Unit
     ) {
 
@@ -505,7 +505,7 @@ class OsmIntermediaryMockup(): OsmIntermediary {
 
     override fun createNote(
         token: String,
-        bobo: Bobo,
+        bobo: OsmBoboNote,
         callback: (OsmDataState<HttpResponse>) -> Unit
     ) {
         TODO("Not yet implemented")

@@ -2,6 +2,7 @@ package com.mapifesto.osm_datasource.note
 
 import com.mapifesto.domain.Bobo
 import com.mapifesto.domain.LatLon
+import com.mapifesto.domain.OsmBoboNote
 import com.mapifesto.domain.OsmTag
 import com.mapifesto.osm_datasource.OsmDataState
 import com.mapifesto.osm_datasource.OsmService
@@ -15,7 +16,7 @@ class CreateNote(
 
     fun execute(
         token: String,
-        bobo: Bobo,
+        bobo: OsmBoboNote,
     ): Flow<OsmDataState<HttpResponse>> = flow {
 
         var errorMessage: String? = null

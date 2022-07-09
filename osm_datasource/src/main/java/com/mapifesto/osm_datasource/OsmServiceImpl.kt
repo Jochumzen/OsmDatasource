@@ -2,6 +2,7 @@ package com.mapifesto.osm_datasource
 
 
 import com.mapifesto.domain.Bobo
+import com.mapifesto.domain.OsmBoboNote
 import com.mapifesto.osm_datasource.EndPoints.CLOSE_CHANGESET
 import com.mapifesto.osm_datasource.EndPoints.QUERY_CHANGESETS
 import com.mapifesto.osm_datasource.EndPoints.CREATE_CHANGESET
@@ -136,7 +137,7 @@ class OsmServiceImpl(
         }
     }
 
-    override suspend fun createNote(token: String, bobo: Bobo): HttpResponse? {
+    override suspend fun createNote(token: String, bobo: OsmBoboNote): HttpResponse? {
         return httpClient.post {
             url("https://api.openstreetmap.org/api/0.6/notes.json")
             contentType(ContentType.Application.Json)
