@@ -2,6 +2,7 @@ package com.mapifesto.osm_datasource
 
 import com.mapifesto.domain.*
 import com.mapifesto.domain.OsmWay
+import io.ktor.client.statement.*
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,8 @@ interface OsmIntermediary {
     fun updateRelation(token: String, elementId: Long, displayName: String, version: Int, tags: List<OsmTag>, members: List<OsmRelationMember>, callback: (OsmDataState<String>) -> Unit)
 
     fun createRelation(token: String, displayName: String, tags: List<OsmTag>, members: List<OsmRelationMember>, callback: (OsmDataState<String>) -> Unit)
+
+    fun createNote(token: String, bobo: Bobo, callback: (OsmDataState<HttpResponse>) -> Unit)
 
     //fun getElementByIdAndType(id: Long, type: OsmElementType, callback: (OsmDataState<OsmRelation>) -> Unit)
 }
@@ -284,8 +287,6 @@ class OsmIntermediaryImpl(): OsmIntermediary {
             }
 
         }
-
-
     }
 
     override fun createRelation(
@@ -318,6 +319,22 @@ class OsmIntermediaryImpl(): OsmIntermediary {
             }
 
         }
+    }
+
+    override fun createNote(
+        token: String,
+        bobo: Bobo,
+        callback: (OsmDataState<HttpResponse>) -> Unit
+    ) {
+
+        val createNote = OsmInteractors.build().createNote
+        createNote.execute(
+            token = token,
+            bobo = bobo,
+        ).onEach { dataState ->
+            callback(dataState)
+
+        }.launchIn(CoroutineScope(Dispatchers.Main))
     }
 
 /*    override fun getElementByIdAndType(
@@ -482,6 +499,14 @@ class OsmIntermediaryMockup(): OsmIntermediary {
         tags: List<OsmTag>,
         members: List<OsmRelationMember>,
         callback: (OsmDataState<String>) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createNote(
+        token: String,
+        bobo: Bobo,
+        callback: (OsmDataState<HttpResponse>) -> Unit
     ) {
         TODO("Not yet implemented")
     }

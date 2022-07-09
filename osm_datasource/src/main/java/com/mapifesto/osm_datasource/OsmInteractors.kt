@@ -6,6 +6,7 @@ import com.mapifesto.osm_datasource.changeset.GetChangesetsData
 import com.mapifesto.osm_datasource.node.CreateNode
 import com.mapifesto.osm_datasource.node.GetNodeById
 import com.mapifesto.osm_datasource.node.UpdateNode
+import com.mapifesto.osm_datasource.note.CreateNote
 import com.mapifesto.osm_datasource.relation.CreateRelation
 import com.mapifesto.osm_datasource.relation.GetRelationById
 import com.mapifesto.osm_datasource.relation.UpdateRelation
@@ -28,6 +29,7 @@ data class OsmInteractors(
     val getRelationById: GetRelationById,
     val updateRelation: UpdateRelation,
     val createRelation: CreateRelation,
+    val createNote: CreateNote,
 ) {
     companion object Factory {
         fun build(): OsmInteractors{
@@ -72,6 +74,9 @@ data class OsmInteractors(
                 createRelation = CreateRelation(
                     service = service
                 ),
+                createNote = CreateNote(
+                    service = service
+                )
             )
         }
 

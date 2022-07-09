@@ -1,5 +1,6 @@
 package com.mapifesto.osm_datasource
 
+import com.mapifesto.domain.Bobo
 import com.mapifesto.osm_datasource.changeset.ChangesetsDto
 import com.mapifesto.osm_datasource.node.NodeDto
 import com.mapifesto.osm_datasource.relation.RelationDto
@@ -21,9 +22,7 @@ interface OsmService {
 
     suspend fun queryChangeset(open: Boolean, displayName: String): ChangesetsDto?
 
-
     suspend fun gerUserDetails(token: String): UserDto?
-
 
     suspend fun getNodeById(id: String): NodeDto?
 
@@ -31,19 +30,19 @@ interface OsmService {
 
     suspend fun createNode(token: String, bodyPut: String): String?
 
-
     suspend fun getWayById(id: String): WayDto?
 
     suspend fun updateWay(token: String, id: String, bodyPut: String): String?
 
     suspend fun createWay(token: String, bodyPut: String): String?
 
-
     suspend fun getRelationById(id: String): RelationDto?
 
     suspend fun updateRelation(token: String, id: String, bodyPut: String): String?
 
     suspend fun createRelation(token: String, bodyPut: String): String?
+
+    suspend fun createNote(token: String, bobo: Bobo): HttpResponse?
 
     companion object Factory {
         fun build(): OsmService {

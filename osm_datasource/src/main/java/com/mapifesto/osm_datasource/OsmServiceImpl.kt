@@ -1,6 +1,7 @@
 package com.mapifesto.osm_datasource
 
 
+import com.mapifesto.domain.Bobo
 import com.mapifesto.osm_datasource.EndPoints.CLOSE_CHANGESET
 import com.mapifesto.osm_datasource.EndPoints.QUERY_CHANGESETS
 import com.mapifesto.osm_datasource.EndPoints.CREATE_CHANGESET
@@ -16,6 +17,10 @@ import com.mapifesto.osm_datasource.user.UserDto
 import com.mapifesto.osm_datasource.way.WayDto
 import io.ktor.client.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class OsmServiceImpl(
     private val httpClient: HttpClient,
@@ -56,8 +61,6 @@ class OsmServiceImpl(
             header(key = "Authorization", value = "Bearer $token")
         }
     }
-
-
 
     override suspend fun getNodeById(id: String): NodeDto? {
         return httpClient.get {
@@ -130,6 +133,14 @@ class OsmServiceImpl(
             url("$RELATION/create")
             body = bodyPut
             header(key = "Authorization", value = "Bearer $token")
+        }
+    }
+
+    override suspend fun createNote(token: String, bobo: Bobo): HttpResponse? {
+        return httpClient.post {
+            url("https://api.openstreetmap.org/api/0.6/notes.json")
+            contentType(ContentType.Application.Json)
+            body = bobo
         }
     }
 }
